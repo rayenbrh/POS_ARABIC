@@ -18,6 +18,7 @@ export const getAllProducts = async (req, res) => {
       products
     });
   } catch (error) {
+    console.error('Get all products error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في جلب المنتجات'
@@ -42,6 +43,7 @@ export const getProduct = async (req, res) => {
       product
     });
   } catch (error) {
+    console.error('Get product error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في جلب المنتج'
@@ -68,6 +70,7 @@ export const getProductByBarcode = async (req, res) => {
       product
     });
   } catch (error) {
+    console.error('Get product by barcode error:', error);
     res.status(500).json({
       success: false,
       message: 'خطأ في البحث عن المنتج'
@@ -136,6 +139,7 @@ export const createProduct = async (req, res) => {
       product: populatedProduct
     });
   } catch (error) {
+    console.error('Create product error:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'خطأ في إنشاء المنتج'
@@ -216,6 +220,7 @@ export const updateProduct = async (req, res) => {
       product
     });
   } catch (error) {
+    console.error('Update product error:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'خطأ في تحديث المنتج'
@@ -242,6 +247,7 @@ export const deleteProduct = async (req, res) => {
       message: 'تم حذف المنتج بنجاح'
     });
   } catch (error) {
+    console.error('Delete product error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في حذف المنتج'

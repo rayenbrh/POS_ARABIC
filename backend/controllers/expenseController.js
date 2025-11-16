@@ -24,6 +24,7 @@ export const createExpense = async (req, res) => {
       expense
     });
   } catch (error) {
+    console.error('Create expense error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في إنشاء المصروف'
@@ -55,6 +56,7 @@ export const getAllExpenses = async (req, res) => {
       expenses
     });
   } catch (error) {
+    console.error('Get all expenses error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في جلب المصروفات'
@@ -81,6 +83,7 @@ export const deleteExpense = async (req, res) => {
       message: 'تم حذف المصروف بنجاح'
     });
   } catch (error) {
+    console.error('Delete expense error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في حذف المصروف'

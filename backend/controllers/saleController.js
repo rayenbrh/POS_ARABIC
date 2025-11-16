@@ -70,6 +70,7 @@ export const createSale = async (req, res) => {
     });
   } catch (error) {
     await session.abortTransaction();
+    console.error('Create sale error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في إنشاء عملية البيع'
@@ -108,6 +109,7 @@ export const getAllSales = async (req, res) => {
       sales
     });
   } catch (error) {
+    console.error('Get all sales error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في جلب المبيعات'
@@ -134,6 +136,7 @@ export const getSale = async (req, res) => {
       sale
     });
   } catch (error) {
+    console.error('Get sale error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في جلب عملية البيع'
@@ -201,6 +204,7 @@ export const deleteSale = async (req, res) => {
     });
   } catch (error) {
     await session.abortTransaction();
+    console.error('Delete sale error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في حذف عملية البيع'
@@ -225,6 +229,7 @@ export const getDeletedSales = async (req, res) => {
       sales
     });
   } catch (error) {
+    console.error('Get deleted sales error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في جلب المبيعات المحذوفة'

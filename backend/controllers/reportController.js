@@ -75,6 +75,7 @@ export const getFinancialReport = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Financial report error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في إنشاء التقرير المالي'
@@ -97,6 +98,7 @@ export const getLowStockReport = async (req, res) => {
       products: lowStockProducts
     });
   } catch (error) {
+    console.error('Low stock report error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في جلب تقرير المخزون المنخفض'
@@ -143,6 +145,7 @@ export const getSalesByProduct = async (req, res) => {
       products: productsWithSales
     });
   } catch (error) {
+    console.error('Sales by product report error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في جلب تقرير المبيعات حسب المنتج'
@@ -236,6 +239,7 @@ export const getProductHistory = async (req, res) => {
       count: transactions.length
     });
   } catch (error) {
+    console.error('Product history error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في جلب تاريخ المنتج'
