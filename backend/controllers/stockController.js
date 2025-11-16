@@ -55,6 +55,7 @@ export const moveStock = async (req, res) => {
     });
   } catch (error) {
     await session.abortTransaction();
+    console.error('Move stock error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في تحديث المخزون'
@@ -93,6 +94,7 @@ export const getStockMovements = async (req, res) => {
       movements
     });
   } catch (error) {
+    console.error('Get stock movements error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في جلب حركات المخزون'

@@ -42,6 +42,7 @@ export const login = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في تسجيل الدخول'
@@ -79,6 +80,7 @@ export const createUser = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Create user error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في إنشاء المستخدم'
@@ -97,6 +99,7 @@ export const getAllUsers = async (req, res) => {
       users
     });
   } catch (error) {
+    console.error('Get all users error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في جلب المستخدمين'

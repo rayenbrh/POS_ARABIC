@@ -11,6 +11,7 @@ export const getAllCategories = async (req, res) => {
       categories
     });
   } catch (error) {
+    console.error('Get all categories error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في جلب الفئات'
@@ -45,6 +46,7 @@ export const createCategory = async (req, res) => {
       category
     });
   } catch (error) {
+    console.error('Create category error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في إنشاء الفئة'
@@ -76,6 +78,7 @@ export const updateCategory = async (req, res) => {
       category
     });
   } catch (error) {
+    console.error('Update category error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في تحديث الفئة'
@@ -102,6 +105,7 @@ export const deleteCategory = async (req, res) => {
       message: 'تم حذف الفئة بنجاح'
     });
   } catch (error) {
+    console.error('Delete category error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في حذف الفئة'

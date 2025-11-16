@@ -216,17 +216,6 @@ function App() {
             }
           />
 
-          <Route
-            path="/expenses"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Expenses />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-
           {/* Redirect */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

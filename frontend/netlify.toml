@@ -15,9 +15,12 @@
   NODE_VERSION = "18"
 
 # Redirect rules for Single Page Application
+# IMPORTANT: Update the 'to' URL below with your actual backend API URL
+# For production, set this to your deployed backend URL
+# Example: https://your-backend-api.com/api
 [[redirects]]
   from = "/api/*"
-  to = "https://dokanzemni-be.2bj94x.easypanel.host/"
+  to = "https://dokanzemni-be.2bj94x.easypanel.host/api"
   status = 200
   force = true
   headers = {X-From = "Netlify"}

@@ -1,4 +1,7 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+import Sale from '../models/Sale.js';
+import Product from '../models/Product.js';
+import StockMovement from '../models/StockMovement.js';
 
 /**
  * تنفيذ عملية بيع بشكل ذري (Atomic)
@@ -9,9 +12,6 @@ const executeSaleTransaction = async (saleData, items, userId) => {
   session.startTransaction();
 
   try {
-    const Sale = require('../models/Sale');
-    const Product = require('../models/Product');
-    const StockMovement = require('../models/StockMovement');
 
     // إنشاء البيع
     // Create sale
@@ -66,10 +66,6 @@ const restoreStockFromSale = async (saleId, userId) => {
   session.startTransaction();
 
   try {
-    const Sale = require('../models/Sale');
-    const Product = require('../models/Product');
-    const StockMovement = require('../models/StockMovement');
-
     const sale = await Sale.findById(saleId).session(session);
     
     if (!sale) {
@@ -107,7 +103,7 @@ const restoreStockFromSale = async (saleId, userId) => {
   }
 };
 
-module.exports = {
+export {
   executeSaleTransaction,
   restoreStockFromSale
 };
