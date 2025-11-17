@@ -105,6 +105,15 @@ export const createProduct = async (req, res) => {
       });
     }
 
+    // Check if product name already exists
+    const existingProductByName = await Product.findOne({ name });
+    if (existingProductByName) {
+      return res.status(400).json({
+        success: false,
+        message: 'اسم المنتج مستخدم بالفعل'
+      });
+    }
+
     // Check if barcode already exists (if provided)
     if (barcode) {
       const existingProduct = await Product.findOne({ barcode });
@@ -172,6 +181,17 @@ export const updateProduct = async (req, res) => {
         success: false,
         message: 'المنتج غير موجود'
       });
+    }
+
+    // Check if product name is being changed and if it already exists
+    if (name && name !== product.name) {
+      const existingProductByName = await Product.findOne({ name });
+      if (existingProductByName) {
+        return res.status(400).json({
+          success: false,
+          message: 'اسم المنتج مستخدم بالفعل'
+        });
+      }
     }
 
     // Check if barcode is being changed and if it already exists
