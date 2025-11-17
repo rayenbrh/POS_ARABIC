@@ -105,8 +105,10 @@ export const createProduct = async (req, res) => {
       });
     }
 
-    // Check if product name already exists
-    const existingProductByName = await Product.findOne({ name });
+    // Check if product name already exists (case-insensitive)
+    const existingProductByName = await Product.findOne({
+      name: { $regex: new RegExp(`^${name}$`, 'i') }
+    });
     if (existingProductByName) {
       return res.status(400).json({
         success: false,
@@ -183,9 +185,11 @@ export const updateProduct = async (req, res) => {
       });
     }
 
-    // Check if product name is being changed and if it already exists
-    if (name && name !== product.name) {
-      const existingProductByName = await Product.findOne({ name });
+    // Check if product name is being changed and if it already exists (case-insensitive)
+    if (name && name.toLowerCase() !== product.name.toLowerCase()) {
+      const existingProductByName = await Product.findOne({
+        name: { $regex: new RegExp(`^${name}$`, 'i') }
+      });
       if (existingProductByName) {
         return res.status(400).json({
           success: false,
