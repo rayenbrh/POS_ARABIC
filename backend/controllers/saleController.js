@@ -24,7 +24,7 @@ export const createSale = async (req, res) => {
       });
     }
 
-    // التحقق من المخزون
+    // التحقق من المخزون أولاً قبل أي تحديثات
     for (const item of items) {
       const product = await Product.findById(item.productId);
 
@@ -52,24 +52,26 @@ export const createSale = async (req, res) => {
       changeReturned
     });
 
-    // تحديث المخزون وإضافة حركات المخزون
+    // تحديث المخزون وإنشاء حركات المخزون
     for (const item of items) {
       const product = await Product.findById(item.productId);
 
-      // تحديث المخزون
-      product.stockBaseUnit -= item.qtyBaseUnit;
-      await product.save();
+      if (product) {
+        // تحديث المخزون
+        product.stockBaseUnit -= item.qtyBaseUnit;
+        await product.save();
 
-      // إضافة حركة مخزون
-      await StockMovement.create({
-        productId: item.productId,
-        qtyChangeBaseUnit: -item.qtyBaseUnit,
-        baseUnitType: item.baseUnitType,
-        type: 'out',
-        reason: 'عملية بيع',
-        userId: req.user._id,
-        relatedSaleId: sale._id
-      });
+        // إضافة حركة مخزون
+        await StockMovement.create({
+          productId: item.productId,
+          qtyChangeBaseUnit: -item.qtyBaseUnit,
+          baseUnitType: item.baseUnitType,
+          type: 'out',
+          reason: 'عملية بيع',
+          userId: req.user._id,
+          relatedSaleId: sale._id
+        });
+      }
     }
 
     res.status(201).json({

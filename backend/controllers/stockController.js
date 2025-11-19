@@ -4,16 +4,12 @@ import StockMovement from '../models/StockMovement.js';
 
 // إضافة أو تعديل المخزون
 export const moveStock = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const { productId, qtyChangeBaseUnit, type, reason } = req.body;
 
-    const product = await Product.findById(productId).session(session);
+    const product = await Product.findById(productId);
 
     if (!product) {
-      await session.abortTransaction();
       return res.status(404).json({
         success: false,
         message: 'المنتج غير موجود'
@@ -25,7 +21,6 @@ export const moveStock = async (req, res) => {
       product.stockBaseUnit += qtyChangeBaseUnit;
     } else if (type === 'out') {
       if (product.stockBaseUnit < qtyChangeBaseUnit) {
-        await session.abortTransaction();
         return res.status(400).json({
           success: false,
           message: 'المخزون غير كافٍ'
@@ -34,34 +29,30 @@ export const moveStock = async (req, res) => {
       product.stockBaseUnit -= qtyChangeBaseUnit;
     }
 
-    await product.save({ session });
+    // Save product - this triggers pre-save hook to recalculate totalStockValue
+    await product.save();
 
     // إنشاء حركة مخزون
-    const stockMovement = await StockMovement.create([{
+    const stockMovement = await StockMovement.create({
       productId,
       qtyChangeBaseUnit,
       baseUnitType: product.baseUnitType,
       type,
       reason,
       userId: req.user._id
-    }], { session });
-
-    await session.commitTransaction();
+    });
 
     res.status(201).json({
       success: true,
-      stockMovement: stockMovement[0],
+      stockMovement: stockMovement,
       newStock: product.stockBaseUnit
     });
   } catch (error) {
-    await session.abortTransaction();
     console.error('Move stock error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في تحديث المخزون'
     });
-  } finally {
-    session.endSession();
   }
 };
 
