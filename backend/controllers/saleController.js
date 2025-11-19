@@ -5,18 +5,14 @@ import StockMovement from '../models/StockMovement.js';
 
 // إنشاء عملية بيع جديدة مع تحديث المخزون
 export const createSale = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const { items, total, amountGiven, changeReturned } = req.body;
 
-    // التحقق من المخزون
+    // التحقق من المخزون أولاً قبل أي تحديثات
     for (const item of items) {
-      const product = await Product.findById(item.productId).session(session);
-      
+      const product = await Product.findById(item.productId);
+
       if (!product) {
-        await session.abortTransaction();
         return res.status(404).json({
           success: false,
           message: `المنتج غير موجود`
@@ -24,59 +20,54 @@ export const createSale = async (req, res) => {
       }
 
       if (product.stockBaseUnit < item.qtyBaseUnit) {
-        await session.abortTransaction();
         return res.status(400).json({
           success: false,
           message: `المخزون غير كافٍ للمنتج: ${product.name}`
         });
       }
-
-      // تحديث المخزون
-      product.stockBaseUnit -= item.qtyBaseUnit;
-      await product.save({ session });
-
-      // إضافة حركة مخزون
-      await StockMovement.create([{
-        productId: item.productId,
-        qtyChangeBaseUnit: -item.qtyBaseUnit,
-        baseUnitType: item.baseUnitType,
-        type: 'out',
-        reason: 'عملية بيع',
-        userId: req.user._id
-      }], { session });
     }
 
-    // إنشاء عملية البيع
-    const sale = await Sale.create([{
+    // إنشاء عملية البيع أولاً
+    const sale = await Sale.create({
       cashierId: req.user._id,
       items,
       total,
       amountGiven,
       changeReturned
-    }], { session });
+    });
 
-    // ربط حركات المخزون بعملية البيع
-    await StockMovement.updateMany(
-      { userId: req.user._id, relatedSaleId: null },
-      { relatedSaleId: sale[0]._id },
-      { session }
-    );
+    // تحديث المخزون وإنشاء حركات المخزون
+    for (const item of items) {
+      const product = await Product.findById(item.productId);
 
-    await session.commitTransaction();
+      if (product) {
+        // تحديث المخزون
+        product.stockBaseUnit -= item.qtyBaseUnit;
+        await product.save();
+
+        // إضافة حركة مخزون
+        await StockMovement.create({
+          productId: item.productId,
+          qtyChangeBaseUnit: -item.qtyBaseUnit,
+          baseUnitType: item.baseUnitType,
+          type: 'out',
+          reason: 'عملية بيع',
+          userId: req.user._id,
+          relatedSaleId: sale._id
+        });
+      }
+    }
 
     res.status(201).json({
       success: true,
-      sale: sale[0]
+      sale: sale
     });
   } catch (error) {
-    await session.abortTransaction();
     console.error('Create sale error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في إنشاء عملية البيع'
     });
-  } finally {
-    session.endSession();
   }
 };
 
@@ -146,16 +137,12 @@ export const getSale = async (req, res) => {
 
 // حذف عملية بيع (soft delete)
 export const deleteSale = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const { id } = req.params;
 
-    const sale = await Sale.findById(id).session(session);
+    const sale = await Sale.findById(id);
 
     if (!sale) {
-      await session.abortTransaction();
       return res.status(404).json({
         success: false,
         message: 'عملية البيع غير موجودة'
@@ -163,7 +150,6 @@ export const deleteSale = async (req, res) => {
     }
 
     if (sale.isDeleted) {
-      await session.abortTransaction();
       return res.status(400).json({
         success: false,
         message: 'عملية البيع محذوفة بالفعل'
@@ -172,13 +158,13 @@ export const deleteSale = async (req, res) => {
 
     // إرجاع المخزون
     for (const item of sale.items) {
-      const product = await Product.findById(item.productId).session(session);
+      const product = await Product.findById(item.productId);
       if (product) {
         product.stockBaseUnit += item.qtyBaseUnit;
-        await product.save({ session });
+        await product.save();
 
         // إضافة حركة مخزون
-        await StockMovement.create([{
+        await StockMovement.create({
           productId: item.productId,
           qtyChangeBaseUnit: item.qtyBaseUnit,
           baseUnitType: item.baseUnitType,
@@ -186,7 +172,7 @@ export const deleteSale = async (req, res) => {
           reason: 'إلغاء عملية بيع',
           userId: req.user._id,
           relatedSaleId: sale._id
-        }], { session });
+        });
       }
     }
 
@@ -194,23 +180,18 @@ export const deleteSale = async (req, res) => {
     sale.isDeleted = true;
     sale.deletedBy = req.user._id;
     sale.deletedAt = new Date();
-    await sale.save({ session });
-
-    await session.commitTransaction();
+    await sale.save();
 
     res.status(200).json({
       success: true,
       message: 'تم حذف عملية البيع وإرجاع المخزون بنجاح'
     });
   } catch (error) {
-    await session.abortTransaction();
     console.error('Delete sale error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في حذف عملية البيع'
     });
-  } finally {
-    session.endSession();
   }
 };
 
