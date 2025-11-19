@@ -220,24 +220,25 @@ export const updateProduct = async (req, res) => {
       }
     }
 
-    product = await Product.findByIdAndUpdate(
-      req.params.id,
-      {
-        name,
-        barcode: barcode || product.barcode,
-        categoryId,
-        productType,
-        baseUnitType,
-        stockBaseUnit: stockBaseUnit !== undefined ? stockBaseUnit : product.stockBaseUnit,
-        minAlertStock,
-        pricePerUnit,
-        pricePerKg,
-        pricePerCup,
-        cupWeightGrams,
-        costPrice
-      },
-      { new: true, runValidators: true }
-    ).populate('categoryId', 'name');
+    // Update product fields using direct assignment to trigger pre-save hook
+    if (name !== undefined) product.name = name;
+    if (barcode !== undefined) product.barcode = barcode;
+    if (categoryId !== undefined) product.categoryId = categoryId;
+    if (productType !== undefined) product.productType = productType;
+    if (baseUnitType !== undefined) product.baseUnitType = baseUnitType;
+    if (stockBaseUnit !== undefined) product.stockBaseUnit = stockBaseUnit;
+    if (minAlertStock !== undefined) product.minAlertStock = minAlertStock;
+    if (pricePerUnit !== undefined) product.pricePerUnit = pricePerUnit;
+    if (pricePerKg !== undefined) product.pricePerKg = pricePerKg;
+    if (pricePerCup !== undefined) product.pricePerCup = pricePerCup;
+    if (cupWeightGrams !== undefined) product.cupWeightGrams = cupWeightGrams;
+    if (costPrice !== undefined) product.costPrice = costPrice;
+
+    // Save the product - this will trigger the pre-save hook to recalculate totalStockValue
+    await product.save();
+
+    // Populate category for response
+    await product.populate('categoryId', 'name');
 
     res.json({
       success: true,
