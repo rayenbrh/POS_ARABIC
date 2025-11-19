@@ -37,7 +37,7 @@ const Dashboard = () => {
         financial: financialData
       });
 
-      setLowStockProducts(lowStockRes.data.products.slice(0, 5));
+      setLowStockProducts(lowStockRes.data.products);
       setLoading(false);
     } catch (error) {
       console.error('خطأ في جلب البيانات:', error);

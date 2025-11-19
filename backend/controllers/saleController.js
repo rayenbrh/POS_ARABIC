@@ -8,6 +8,22 @@ export const createSale = async (req, res) => {
   try {
     const { items, total, amountGiven, changeReturned } = req.body;
 
+    // التحقق من وجود المستخدم
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({
+        success: false,
+        message: 'يرجى تسجيل الدخول أولاً'
+      });
+    }
+
+    // التحقق من وجود العناصر
+    if (!items || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'لا توجد منتجات في السلة'
+      });
+    }
+
     // التحقق من المخزون أولاً قبل أي تحديثات
     for (const item of items) {
       const product = await Product.findById(item.productId);
@@ -60,13 +76,16 @@ export const createSale = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      sale: sale
+      sale
     });
   } catch (error) {
     console.error('Create sale error:', error);
+    console.error('Error details:', error.message);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({
       success: false,
-      message: 'حدث خطأ في إنشاء عملية البيع'
+      message: 'حدث خطأ في إنشاء عملية البيع',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
