@@ -334,7 +334,10 @@ const POS = () => {
                   >
                     <h4 className="font-bold text-sm mb-2">{product.name}</h4>
                     <p className="text-xs text-gray-600">
-                      {product.stockBaseUnit} {product.baseUnitType === 'grams' ? 'جرام' : 'قطعة'}
+                      {product.baseUnitType === 'grams'
+                        ? `${(product.stockBaseUnit / 1000).toFixed(2)} كغ`
+                        : `${product.stockBaseUnit} قطعة`
+                      }
                     </p>
                   </button>
                 ))}
