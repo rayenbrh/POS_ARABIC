@@ -31,8 +31,23 @@ const Login = () => {
   if (loading) return <Loader fullScreen />;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 relative"
+      style={{
+        backgroundImage: 'url(/spices-bg.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Blur overlay */}
+      <div 
+        className="absolute inset-0 backdrop-blur-md bg-black/30"
+        style={{ backdropFilter: 'blur(8px)' }}
+      ></div>
+
+      {/* Login card */}
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative z-10">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">نظام نقطة البيع</h1>
           <p className="text-gray-600">إدارة المخزون والمبيعات</p>
