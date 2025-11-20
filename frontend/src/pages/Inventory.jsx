@@ -12,6 +12,7 @@ const Inventory = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');  // NEW: Search state
   const [movementData, setMovementData] = useState({
     type: 'in',
     qtyChangeBaseUnit: '',
@@ -83,11 +84,45 @@ const Inventory = () => {
     return `${product.minAlertStock} قطعة`;
   };
 
+  // NEW: Filter products based on search query
+  const filteredProducts = products.filter((product) => {
+    const query = searchQuery.toLowerCase();
+    const productName = product.name?.toLowerCase() || '';
+    const categoryName = product.categoryId?.name?.toLowerCase() || '';
+    
+    return productName.includes(query) || categoryName.includes(query);
+  });
+
   if (loading) return <Loader fullScreen />;
 
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">إدارة المخزون</h1>
+
+      {/* NEW: Search Bar */}
+      <div className="mb-4">
+        <div className="relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="🔍 ابحث عن منتج أو فئة..."
+            className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+            dir="rtl"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        <p className="text-sm text-gray-500 mt-2 text-right">
+          عدد المنتجات: {filteredProducts.length} من أصل {products.length}
+        </p>
+      </div>
 
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="overflow-x-auto">
@@ -104,7 +139,8 @@ const Inventory = () => {
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => {
+              {/* CHANGED: Use filteredProducts instead of products */}
+              {filteredProducts.map((product) => {
                 const isLowStock = product.stockBaseUnit <= product.minAlertStock;
                 return (
                   <tr key={product._id} className="border-t hover:bg-gray-50">
@@ -142,6 +178,14 @@ const Inventory = () => {
                   </tr>
                 );
               })}
+              {/* NEW: Empty state when no results */}
+              {filteredProducts.length === 0 && (
+                <tr>
+                  <td colSpan="7" className="px-4 py-8 text-center text-gray-500">
+                    لا توجد منتجات تطابق البحث
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
