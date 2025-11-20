@@ -63,12 +63,6 @@ const Login = () => {
             تسجيل الدخول
           </Button>
         </form>
-
-        <div className="mt-6 text-center text-sm text-gray-600">
-          <p>للتجربة:</p>
-          <p className="mt-1">مدير: admin@pos.com / admin123</p>
-          <p>كاشير: cashier@pos.com / cashier123</p>
-        </div>
       </div>
     </div>
   );
