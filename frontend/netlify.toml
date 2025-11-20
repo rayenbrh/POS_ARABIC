@@ -18,7 +18,7 @@
 # Updated backend URL: https://dokanzemni-backend-hosni.2bj94x.easypanel.host
 [[redirects]]
   from = "/api/*"
-  to = "https://dokanzemni-backend-hosni.2bj94x.easypanel.host/api"
+  to = "https://dokanzemni-be.2bj94x.easypanel.host/api"
   
   status = 200
   force = true
