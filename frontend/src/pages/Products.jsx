@@ -12,6 +12,7 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [currentProduct, setCurrentProduct] = useState({
     name: '',
     categoryId: '',
@@ -67,8 +68,11 @@ const Products = () => {
   const openEditModal = (product) => {
     setEditMode(true);
     // Convert to kg for display if grams
+    // Ensure categoryId is a string (handle both populated object and ID string)
+    const categoryIdValue = product.categoryId?._id || product.categoryId || '';
     const displayProduct = {
       ...product,
+      categoryId: categoryIdValue,
       stockBaseUnit: product.baseUnitType === 'grams' 
         ? product.stockBaseUnit / 1000 
         : product.stockBaseUnit,
@@ -143,15 +147,24 @@ const Products = () => {
     if (product.baseUnitType === 'grams') {
       return `${(product.stockBaseUnit / 1000).toFixed(2)} كغ`;
     }
-    return `${product.stockBaseUnit} قطعة`;
+    return `${parseFloat(product.stockBaseUnit).toFixed(2)} قطعة`;
   };
 
   const formatMinAlert = (product) => {
     if (product.baseUnitType === 'grams') {
       return (product.minAlertStock / 1000).toFixed(2);
     }
-    return product.minAlertStock;
+    return parseFloat(product.minAlertStock).toFixed(2);
   };
+
+  // Filter products based on search query
+  const filteredProducts = products.filter((product) => {
+    const query = searchQuery.toLowerCase();
+    const productName = product.name?.toLowerCase() || '';
+    const categoryName = product.categoryId?.name?.toLowerCase() || '';
+    
+    return productName.includes(query) || categoryName.includes(query);
+  });
 
   if (loading) return <Loader fullScreen />;
 
@@ -162,6 +175,31 @@ const Products = () => {
         <Button onClick={openAddModal}>
           ➕ إضافة منتج جديد
         </Button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="mb-4">
+        <div className="relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="🔍 ابحث عن منتج أو فئة..."
+            className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+            dir="rtl"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        <p className="text-sm text-gray-500 mt-2 text-right">
+          عدد المنتجات: {filteredProducts.length} من أصل {products.length}
+        </p>
       </div>
 
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -179,7 +217,7 @@ const Products = () => {
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <tr key={product._id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-3 font-semibold">{product.name}</td>
                   <td className="px-4 py-3">{product.categoryId?.name}</td>
@@ -225,6 +263,13 @@ const Products = () => {
                   </td>
                 </tr>
               ))}
+              {filteredProducts.length === 0 && (
+                <tr>
+                  <td colSpan="7" className="px-4 py-8 text-center text-gray-500">
+                    لا توجد منتجات تطابق البحث
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

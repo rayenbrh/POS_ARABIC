@@ -74,14 +74,14 @@ const Inventory = () => {
     if (product.baseUnitType === 'grams') {
       return `${(product.stockBaseUnit / 1000).toFixed(2)} كغ`;
     }
-    return `${product.stockBaseUnit} قطعة`;
+    return `${parseFloat(product.stockBaseUnit).toFixed(2)} قطعة`;
   };
 
   const formatMinAlert = (product) => {
     if (product.baseUnitType === 'grams') {
       return `${(product.minAlertStock / 1000).toFixed(2)} كغ`;
     }
-    return `${product.minAlertStock} قطعة`;
+    return `${parseFloat(product.minAlertStock).toFixed(2)} قطعة`;
   };
 
   // NEW: Filter products based on search query
@@ -199,8 +199,11 @@ const Inventory = () => {
       >
         <form onSubmit={handleSubmit}>
           <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-            <p className="font-semibold">
+            <p className="font-semibold mb-2">
               المخزون الحالي: {selectedProduct && formatStock(selectedProduct)}
+            </p>
+            <p className="text-sm text-gray-600">
+              الفئة: {selectedProduct?.categoryId?.name || 'غير محدد'}
             </p>
           </div>
 

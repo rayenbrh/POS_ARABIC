@@ -21,6 +21,7 @@ const Analytics = () => {
   // Capital Analysis State
   const [capitalData, setCapitalData] = useState(null);
   const [capitalLoading, setCapitalLoading] = useState(false);
+  const [capitalSearchQuery, setCapitalSearchQuery] = useState('');
   const [capitalDateRange, setCapitalDateRange] = useState({
     startDate: '',
     endDate: ''
@@ -167,7 +168,9 @@ const Analytics = () => {
                 <div>
                   <p className="text-sm text-gray-600">المخزون الحالي</p>
                   <p className="text-2xl font-bold text-blue-600">
-                    {selectedProduct.stockBaseUnit} {selectedProduct.baseUnitType === 'grams' ? 'جرام' : 'قطعة'}
+                    {selectedProduct.baseUnitType === 'grams'
+                      ? `${(selectedProduct.stockBaseUnit / 1000).toFixed(2)} كغ`
+                      : `${parseFloat(selectedProduct.stockBaseUnit).toFixed(2)} قطعة`}
                   </p>
                 </div>
                 <div>
@@ -405,30 +408,64 @@ const Analytics = () => {
 
               {/* Product Details Table */}
               <div className="bg-white rounded-xl shadow-lg p-6">
-                <h2 className="text-xl font-bold mb-4">
-                  📦 تفاصيل المنتجات ({capitalData.products.length})
-                </h2>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold">
+                    📦 تفاصيل المنتجات ({capitalData.products.length})
+                  </h2>
+                </div>
+
+                {/* Search Bar */}
+                <div className="mb-4">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={capitalSearchQuery}
+                      onChange={(e) => setCapitalSearchQuery(e.target.value)}
+                      placeholder="🔍 ابحث عن منتج أو فئة..."
+                      className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+                      dir="rtl"
+                    />
+                    {capitalSearchQuery && (
+                      <button
+                        onClick={() => setCapitalSearchQuery('')}
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </div>
 
                 {capitalLoading ? (
                   <Loader />
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-4 py-3 text-right">المنتج</th>
-                          <th className="px-4 py-3 text-right">الفئة</th>
-                          <th className="px-4 py-3 text-right">المخزون الحالي</th>
-                          <th className="px-4 py-3 text-right">رأس المال</th>
-                          <th className="px-4 py-3 text-right">الكمية المباعة</th>
-                          <th className="px-4 py-3 text-right">الإيرادات</th>
-                          <th className="px-4 py-3 text-right">التكلفة</th>
-                          <th className="px-4 py-3 text-right">الربح</th>
-                          <th className="px-4 py-3 text-right">هامش الربح</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {capitalData.products.map((item, index) => (
+                ) : (() => {
+                  // Filter products based on search query
+                  const filteredCapitalProducts = capitalData.products.filter((item) => {
+                    if (!capitalSearchQuery) return true;
+                    const query = capitalSearchQuery.toLowerCase();
+                    const productName = item.product.name?.toLowerCase() || '';
+                    const categoryName = item.product.category?.toLowerCase() || '';
+                    return productName.includes(query) || categoryName.includes(query);
+                  });
+
+                  return (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-3 text-right">المنتج</th>
+                            <th className="px-4 py-3 text-right">الفئة</th>
+                            <th className="px-4 py-3 text-right">المخزون الحالي</th>
+                            <th className="px-4 py-3 text-right">رأس المال</th>
+                            <th className="px-4 py-3 text-right">الكمية المباعة</th>
+                            <th className="px-4 py-3 text-right">الإيرادات</th>
+                            <th className="px-4 py-3 text-right">التكلفة</th>
+                            <th className="px-4 py-3 text-right">الربح</th>
+                            <th className="px-4 py-3 text-right">هامش الربح</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredCapitalProducts.map((item, index) => (
                           <tr key={index} className="border-t hover:bg-gray-50">
                             <td className="px-4 py-3 font-semibold">
                               {item.product.name}
@@ -437,7 +474,9 @@ const Analytics = () => {
                               {item.product.category}
                             </td>
                             <td className="px-4 py-3">
-                              {item.currentStock} {item.product.baseUnitType === 'grams' ? 'جرام' : 'قطعة'}
+                              {item.product.baseUnitType === 'grams'
+                                ? `${(item.currentStock / 1000).toFixed(2)} كغ`
+                                : `${parseFloat(item.currentStock).toFixed(2)} قطعة`}
                             </td>
                             <td className="px-4 py-3 font-bold text-blue-600">
                               {item.currentCapital.toFixed(2)} د.ت
@@ -466,10 +505,18 @@ const Analytics = () => {
                             </td>
                           </tr>
                         ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                          {filteredCapitalProducts.length === 0 && (
+                            <tr>
+                              <td colSpan="9" className="px-4 py-8 text-center text-gray-500">
+                                لا توجد منتجات تطابق البحث
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                })()}
               </div>
             </>
           )}

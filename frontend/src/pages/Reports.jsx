@@ -13,6 +13,7 @@ const Reports = () => {
   const [financialReport, setFinancialReport] = useState(null);
   const [salesByProduct, setSalesByProduct] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [salesByProductSearch, setSalesByProductSearch] = useState('');
 
   useEffect(() => {
     fetchReports();
@@ -120,35 +121,82 @@ const Reports = () => {
       )}
 
       {/* Sales by Product */}
-      <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-        <h2 className="text-2xl font-bold mb-4">المبيعات حسب المنتج</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-right">المنتج</th>
-                <th className="px-4 py-3 text-right">الكمية المباعة</th>
-                <th className="px-4 py-3 text-right">الإيرادات</th>
-                <th className="px-4 py-3 text-right">عدد المعاملات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {salesByProduct.map((item, index) => (
-                <tr key={index} className="border-t hover:bg-gray-50">
-                  <td className="px-4 py-3 font-semibold">{item._id?.name}</td>
-                  <td className="px-4 py-3">
-                    {item.totalQuantity.toFixed(2)} {item._id?.baseUnitType === 'grams' ? 'جرام' : 'قطعة'}
-                  </td>
-                  <td className="px-4 py-3 font-bold text-green-600">
-                    {item.totalRevenue.toFixed(2)} د.ت
-                  </td>
-                  <td className="px-4 py-3">{item.totalTransactions}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {(() => {
+        // Filter products based on search query
+        const filteredSalesByProduct = salesByProduct.filter((item) => {
+          if (!salesByProductSearch) return true;
+          const query = salesByProductSearch.toLowerCase();
+          const productName = item._id?.name?.toLowerCase() || '';
+          return productName.includes(query);
+        });
+
+        return (
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 className="text-2xl font-bold mb-4">المبيعات حسب المنتج</h2>
+            
+            {/* Search Bar */}
+            <div className="mb-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={salesByProductSearch}
+                  onChange={(e) => setSalesByProductSearch(e.target.value)}
+                  placeholder="🔍 ابحث عن منتج..."
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+                  dir="rtl"
+                />
+                {salesByProductSearch && (
+                  <button
+                    onClick={() => setSalesByProductSearch('')}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              {salesByProductSearch && (
+                <p className="text-sm text-gray-500 mt-2 text-right">
+                  عدد المنتجات: {filteredSalesByProduct.length} من أصل {salesByProduct.length}
+                </p>
+              )}
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-right">المنتج</th>
+                    <th className="px-4 py-3 text-right">الكمية المباعة</th>
+                    <th className="px-4 py-3 text-right">الإيرادات</th>
+                    <th className="px-4 py-3 text-right">عدد المعاملات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredSalesByProduct.map((item, index) => (
+                    <tr key={index} className="border-t hover:bg-gray-50">
+                      <td className="px-4 py-3 font-semibold">{item._id?.name}</td>
+                      <td className="px-4 py-3">
+                        {item.totalQuantity.toFixed(2)} {item._id?.baseUnitType === 'grams' ? 'جرام' : 'قطعة'}
+                      </td>
+                      <td className="px-4 py-3 font-bold text-green-600">
+                        {item.totalRevenue.toFixed(2)} د.ت
+                      </td>
+                      <td className="px-4 py-3">{item.totalTransactions}</td>
+                    </tr>
+                  ))}
+                  {filteredSalesByProduct.length === 0 && salesByProduct.length > 0 && (
+                    <tr>
+                      <td colSpan="4" className="px-4 py-8 text-center text-gray-500">
+                        لا توجد منتجات تطابق البحث
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Expenses */}
       <div className="bg-white rounded-xl shadow-lg p-6">

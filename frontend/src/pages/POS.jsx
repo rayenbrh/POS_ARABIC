@@ -12,6 +12,7 @@ const POS = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sales, setSales] = useState([]);
@@ -35,12 +36,28 @@ const POS = () => {
   }, []);
 
   useEffect(() => {
+    let filtered = products;
+    
+    // Filter by category
     if (selectedCategory) {
-      setFilteredProducts(products.filter(p => p.categoryId._id === selectedCategory));
-    } else {
-      setFilteredProducts(products);
+      filtered = filtered.filter(p => {
+        const categoryId = p.categoryId?._id || p.categoryId;
+        return categoryId === selectedCategory;
+      });
     }
-  }, [selectedCategory, products]);
+    
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(p => {
+        const productName = p.name?.toLowerCase() || '';
+        const categoryName = p.categoryId?.name?.toLowerCase() || '';
+        return productName.includes(query) || categoryName.includes(query);
+      });
+    }
+    
+    setFilteredProducts(filtered);
+  }, [selectedCategory, products, searchQuery]);
 
   const fetchData = async () => {
     try {
@@ -295,6 +312,33 @@ const POS = () => {
             </div>
 
             <div className="bg-white rounded-xl shadow-lg p-6 mb-4">
+              {/* Search Bar */}
+              <div className="mb-4">
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="🔍 ابحث عن منتج أو فئة..."
+                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+                    dir="rtl"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+                {searchQuery && (
+                  <p className="text-sm text-gray-500 mt-2 text-right">
+                    عدد المنتجات: {filteredProducts.length}
+                  </p>
+                )}
+              </div>
+
               <h3 className="font-bold text-xl mb-4">الفئات</h3>
               <div className="flex gap-3 flex-wrap">
                 <button
@@ -336,7 +380,7 @@ const POS = () => {
                     <p className="text-xs text-gray-600">
                       {product.baseUnitType === 'grams'
                         ? `${(product.stockBaseUnit / 1000).toFixed(2)} كغ`
-                        : `${product.stockBaseUnit} قطعة`
+                        : `${parseFloat(product.stockBaseUnit).toFixed(2)} قطعة`
                       }
                     </p>
                   </button>
@@ -462,8 +506,9 @@ const POS = () => {
       >
         <div>
           <p className="mb-4 text-gray-600">
-            المخزون المتاح: {selectedProduct?.stockBaseUnit}{' '}
-            {selectedProduct?.baseUnitType === 'grams' ? 'جرام' : 'قطعة'}
+            المخزون المتاح: {selectedProduct?.baseUnitType === 'grams' 
+              ? `${(selectedProduct?.stockBaseUnit / 1000).toFixed(2)} كغ`
+              : `${parseFloat(selectedProduct?.stockBaseUnit || 0).toFixed(2)} قطعة`}
           </p>
 
           <div className="mb-4">

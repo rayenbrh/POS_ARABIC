@@ -49,14 +49,14 @@ const Dashboard = () => {
     if (product.baseUnitType === 'grams') {
       return `${(product.stockBaseUnit / 1000).toFixed(2)} كغ`;
     }
-    return `${product.stockBaseUnit} قطعة`;
+    return `${parseFloat(product.stockBaseUnit).toFixed(2)} قطعة`;
   };
 
   const formatMinAlert = (product) => {
     if (product.baseUnitType === 'grams') {
       return `${(product.minAlertStock / 1000).toFixed(2)} كغ`;
     }
-    return `${product.minAlertStock} قطعة`;
+    return `${parseFloat(product.minAlertStock).toFixed(2)} قطعة`;
   };
 
   if (loading) return <Loader fullScreen />;
