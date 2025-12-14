@@ -55,13 +55,17 @@ Node.js (v16 أو أحدث)
 MongoDB Atlas حساب مجاني
 npm أو yarn
 🚀 التثبيت والتشغيل
+
+## وضع التطوير (Development)
+
 1️⃣ إعداد قاعدة البيانات
-إنشاء حساب مجاني على MongoDB Atlas
-إنشاء Cluster جديد
-إنشاء Database User
-الحصول على Connection String
+- إنشاء حساب مجاني على MongoDB Atlas
+- إنشاء Cluster جديد
+- إنشاء Database User
+- الحصول على Connection String
+
 2️⃣ إعداد Backend
-bash
+```bash
 # الانتقال إلى مجلد Backend
 cd backend
 
@@ -77,8 +81,10 @@ NODE_ENV=development
 
 # تشغيل الخادم
 npm run dev
+```
+
 3️⃣ إعداد Frontend
-bash
+```bash
 # الانتقال إلى مجلد Frontend
 cd frontend
 
@@ -87,7 +93,47 @@ npm install
 
 # تشغيل التطبيق
 npm run dev
+```
 التطبيق سيعمل على: http://localhost:3000
+
+## وضع الإنتاج (Production) - Single Service Deployment
+
+هذا التطبيق مُعد للعمل كخدمة واحدة حيث يخدم Backend كل من API و Frontend.
+
+### Build و Deploy
+
+```bash
+# 1. Build Frontend
+cd frontend
+npm install
+npm run build
+# سيتم إنشاء الملفات في backend/public/
+
+# 2. Démarrage du Serveur
+cd ../backend
+npm install
+npm start
+```
+
+### Déploiement sur Hostinger EasyPanel
+
+1. **Créer un seul service** dans EasyPanel
+2. **Point d'entrée**: `backend/server.js`
+3. **Commande de démarrage**: `npm start`
+4. **Port**: Configuré automatiquement par EasyPanel
+5. **Variables d'environnement**:
+   - `PORT` (optionnel, par défaut 5000)
+   - `MONGODB_URI` (requis)
+   - `JWT_SECRET` (requis)
+   - `JWT_EXPIRE` (optionnel, par défaut 7d)
+
+### Structure des Routes
+
+- **API**: `/api/*` → Routes Express
+- **Frontend**: `/*` → React App (index.html)
+- **Assets**: `/assets/*` → Fichiers statiques
+
+Voir `DEPLOYMENT.md` pour plus de détails.
 
 👥 إنشاء المستخدمين الأوليين
 يجب إنشاء مستخدم Admin أولاً عبر MongoDB Compass أو MongoDB Shell:

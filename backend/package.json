@@ -7,6 +7,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "build": "cd ../frontend && npm install && npm run build",
+    "build:frontend": "cd ../frontend && npm install && npm run build",
     "seed": "node seed.js",
     "recalculate": "node recalculate-stock-values.js"
   },

@@ -114,6 +114,10 @@ dist
 # Docusaurus cache and generated files
 .docusaurus
 
+# Backend public directory (frontend build output)
+# Uncomment if you want to ignore built files (recommended)
+# backend/public/
+
 # Serverless directories
 .serverless/
 
