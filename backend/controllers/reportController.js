@@ -267,8 +267,18 @@ export const getCapitalAnalysis = async (req, res) => {
     const productAnalysis = [];
 
     for (const product of products) {
-      // رأس المال الحالي في المخزون
-      const currentCapital = product.totalStockValue;
+      // حساب رأس المال الحالي في المخزون مباشرة
+      // للمنتجات بالجرام: (stockBaseUnit / 1000) * costPrice
+      // للمنتجات بالقطعة: stockBaseUnit * costPrice
+      let currentCapital = 0;
+      if (product.baseUnitType === 'grams') {
+        // stockBaseUnit في جرام، costPrice لكل كيلو
+        // نحول الجرام إلى كيلو ثم نضرب في السعر
+        currentCapital = (product.stockBaseUnit / 1000) * product.costPrice;
+      } else {
+        // stockBaseUnit في قطع، costPrice لكل قطعة
+        currentCapital = product.stockBaseUnit * product.costPrice;
+      }
 
       // جلب المبيعات للمنتج
       const sales = await Sale.find({
