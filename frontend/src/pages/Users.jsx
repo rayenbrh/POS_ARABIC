@@ -65,10 +65,10 @@ const Users = () => {
           >
             <div className="flex items-center gap-4 mb-4">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                {user.name.charAt(0).toUpperCase()}
+                {(user.name || '?').charAt(0).toUpperCase()}
               </div>
               <div>
-                <h3 className="text-xl font-bold">{user.name}</h3>
+                <h3 className="text-xl font-bold">{user.name || 'بدون اسم'}</h3>
                 <p className="text-sm text-gray-600">{user.email}</p>
               </div>
             </div>
